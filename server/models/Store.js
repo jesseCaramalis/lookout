@@ -5,15 +5,11 @@ const StoreSchema = new mongoose.Schema(
         storeName: {
             type: String,
             required: true,
-        },
-        storeNumber: {
-            type: Number,
-            required: true,
-        },
-        incidents: {
-            type: Array,          
-        },
-
+        },    
+        posts: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Post"
+        }],
     },
     { timestamps: true }
 );

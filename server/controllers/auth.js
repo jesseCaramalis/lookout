@@ -1,21 +1,21 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import Store from "../models/Store.js";
 
 //REGISTER USER
 export const register = async (req, res) => {
     try {
+        console.log(req.body)
         const {
             firstName,
             lastName,
             email,
             password,
-            picturePath,
-            friends,
-            location,
-            occupation
+            store,
         } = req.body;
 
+        //Hash password
         const salt = await bcrypt.genSalt();
         const passwordHash = await bcrypt.hash(password, salt);
 
@@ -24,12 +24,7 @@ export const register = async (req, res) => {
             lastName,
             email,
             password: passwordHash,
-            picturePath,
-            friends,
-            location,
-            occupation,
-            viewedProfile: Math.floor(Math.random() * 10000),
-            impressions: Math.floor(Math.random() * 10000), //just giving a random value for now
+            store: await Store.findOne({ storeName: store })._id,
         });
         const savedUser = await newUser.save();
         res.status(201).json(savedUser); //if something has been created, sends json version of savedUser.

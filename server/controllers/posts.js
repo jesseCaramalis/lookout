@@ -1,7 +1,6 @@
-import Post from "../models/Post.js";
 import User from "../models/User.js";
-import Store from "../models/Store.js";
 import cloudinary from "../middleware/cloudinary.js";
+import Post from "../models/Post.js";
 
 // CREATE
 export const createPost = async (req, res) => {
@@ -11,6 +10,7 @@ export const createPost = async (req, res) => {
         const user = await User.findById(userId); //gets user info for user that posted
         const newPost = new Post({
             userId,
+            store: user.store,
             firstName: user.firstName,
             lastName: user.lastName,
             location: user.store,
@@ -19,6 +19,8 @@ export const createPost = async (req, res) => {
             cloudinaryId: result.public_id,
         })
         await newPost.save(); //saves post to mongoDB
+        
+        await Store.findOneAndUpdate({ _id: user.store }, { $push: { posts: newPost._id }});
 
         const post = await Post.find(); //this returns ALL posts from DB and passing to front end, which will then have a list of all new updated posts.
 
@@ -29,7 +31,7 @@ export const createPost = async (req, res) => {
     }
 }
 
-// READ
+//READ
 export const getFeedPosts = async (req, res) => {
     try {
         const post = await Post.find().sort({ createdAt: -1 });
